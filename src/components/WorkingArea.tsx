@@ -1,28 +1,27 @@
 "use client";
 import { useEffect, useState } from "react";
 import TextArea from "./TextArea";
-import { encodeOptions } from "../constants/const";
-import { formatJson, handle64Base, md5Converter } from "../utils/utils";
+import { EBase64Mode, EConverter, encodeOptions } from "../constants/const";
+import { formatJson, handle64Base, md5Converter } from "../utils";
 
 export default function WorkingArea() {
   const [input, setInput] = useState("");
-  const [result, setResult] = useState<any>();
+  const [result, setResult] = useState("");
   const [selectedOption, setSelectedOption] = useState(encodeOptions[0]);
-  const [base64Mode, setBase64Mode] = useState("Encode");
+  const [base64Mode, setBase64Mode] = useState(EBase64Mode.ENCODE);
 
   useEffect(() => {
     switch (selectedOption) {
-      case "Base 64":
+      case EConverter.BASE64:
         setResult(handle64Base(base64Mode, input));
         break;
-      case "Base 64 Image":
+      case EConverter.BASE64_IMAGE:
         setResult(input);
         break;
-      case "JSON Formatter":
-        setResult(formatJson(input));
-
+      case EConverter.JSON_FORMATTER:
+        setResult(formatJson(input) as string);
         break;
-      case "MD5 Converter":
+      case EConverter.MD5_CONVERTER:
         setResult(md5Converter(input));
         break;
       default:
@@ -32,11 +31,24 @@ export default function WorkingArea() {
 
   const handleSelectMode = (option: string) => {
     resetInput();
-    setSelectedOption(option);
+    setSelectedOption(encodeOptions.find((op) => op === option)!);
   };
+
   const resetInput = () => {
     setInput("");
     setResult("");
+  };
+
+  const handleChangeBase64Mode = () => {
+
+    if (base64Mode !== EBase64Mode.ENCODE) {
+      resetInput();
+      setBase64Mode(EBase64Mode.ENCODE);
+      return;
+    }
+
+    resetInput();
+    setBase64Mode(EBase64Mode.DECODE);
   };
 
   return (
@@ -58,27 +70,17 @@ export default function WorkingArea() {
         <div className="flex-center gap-2 mt-4">
           <div
             className={`px-3.5 py-2 border rounded-lg ${
-              base64Mode === "Encode" && "bg-foreground text-background"
+              base64Mode === EBase64Mode.ENCODE && "bg-foreground text-background"
             }`}
-            onClick={() => {
-              if (base64Mode !== "Encode") {
-                resetInput();
-                setBase64Mode("Encode");
-              }
-            }}
+            onClick={handleChangeBase64Mode}
           >
             Encode
           </div>
           <div
             className={`px-3.5 py-2 border rounded-lg ${
-              base64Mode === "Decode" && "bg-foreground text-background"
+              base64Mode === EBase64Mode.DECODE && "bg-foreground text-background"
             }`}
-            onClick={() => {
-              if (base64Mode !== "Decode") {
-                resetInput();
-                setBase64Mode("Decode");
-              }
-            }}
+            onClick={handleChangeBase64Mode}
           >
             Decode
           </div>
@@ -88,7 +90,7 @@ export default function WorkingArea() {
         <TextArea
           placeholder="Input"
           value={input}
-          setValue={setInput}
+          onChange={(e) => setInput(e)}
         />
         <TextArea
           isImage={selectedOption === "Base 64 Image"}

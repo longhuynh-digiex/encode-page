@@ -2,21 +2,23 @@
 import Image from "next/image";
 import React, { useState } from "react";
 import { emptyImage } from "../constants/const";
+import { twMerge } from "tailwind-merge";
 
 export default function TextArea({
   placeholder = "Text",
   className,
   value,
-  setValue,
   disabled = false,
   isImage = false,
+  onChange = () => {},
 }: {
   placeholder?: string;
   className?: string;
   value?: string;
-  setValue?: React.Dispatch<React.SetStateAction<string>>;
+
   disabled?: boolean;
   isImage?: boolean;
+  onChange?: (e: string) => void;
 }) {
   const [copy, setCopy] = useState(false);
   const handleCopy = async () => {
@@ -41,29 +43,23 @@ export default function TextArea({
             <textarea
               disabled={disabled}
               value={value}
-              onChange={(e) => (setValue ? setValue(e.target.value) : "")}
-              className={`border border-foreground rounded-xl p-3 w-full h-[200px] text-start resize-none  ${className}`}
+              onChange={(e) => onChange(e?.target?.value || "")}
+              className={twMerge(
+                "border border-foreground rounded-xl p-3 w-full h-[200px] text-start resize-none",
+                className
+              )}
               placeholder={placeholder}
             />
             <div
               className="bg-foreground absolute right-3 bottom-5 cursor-pointer p-1 rounded-full"
               onClick={handleCopy}
             >
-              {copy ? (
-                <Image
-                  src={"/check.svg"}
-                  width={16}
-                  height={16}
-                  alt="copy"
-                />
-              ) : (
-                <Image
-                  src={"/copy.svg"}
-                  width={16}
-                  height={16}
-                  alt="copy"
-                />
-              )}
+              <Image
+                src={copy ? "/check.svg" : "/copy.svg"}
+                width={16}
+                height={16}
+                alt="copy"
+              />
             </div>
           </>
         )}

@@ -1,5 +1,7 @@
 import { MD5 } from "crypto-js";
+
 export const handle64Base = (mode: string, str: string) => {
+
     if (mode === "Encode") return btoa(str);
 
     try {
@@ -18,6 +20,7 @@ export const formatJson = (str: string) => {
         const parsed = JSON.parse(str);
         return JSON.stringify(parsed, null, 2)
     } catch (error) {
-
+        console.log(error);
+        
     }
 }
